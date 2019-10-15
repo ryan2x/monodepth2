@@ -24,7 +24,7 @@ from layers import *
 import datasets
 import networks
 from IPython import embed
-
+from pkg_resources import parse_version
 
 class Trainer:
     def __init__(self, options):
@@ -196,7 +196,8 @@ class Trainer:
     def run_epoch(self):
         """Run a single epoch of training and validation
         """
-        self.model_lr_scheduler.step()
+        if parse_version(torch.__version__) < parse_version("1.1.0"):
+            self.model_lr_scheduler.step()
 
         print("Training")
         self.set_train()
@@ -227,6 +228,9 @@ class Trainer:
                 self.val()
 
             self.step += 1
+
+        if parse_version(torch.__version__) >= parse_version("1.1.0"):
+            self.model_lr_scheduler.step()
 
     def process_batch(self, inputs):
         """Pass a minibatch through the network and generate images and losses
@@ -469,7 +473,7 @@ class Trainer:
             if not self.opt.disable_automasking:
                 # add random numbers to break ties
                 identity_reprojection_loss += torch.randn(
-                    identity_reprojection_loss.shape).cuda() * 0.00001
+                    identity_reprojection_loss.shape).to(self.device) * 0.00001
 
                 combined = torch.cat((identity_reprojection_loss, reprojection_loss), dim=1)
             else:
