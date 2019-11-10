@@ -10,11 +10,14 @@ from .mono_dataset import MonoDataset
 class VideoFramesDataset(MonoDataset):
     def __init__(self, *args, **kwargs):
         super(VideoFramesDataset, self).__init__(*args, **kwargs)
-        # todo: what shall I put as K matrix?
-        self.K = np.array([[0.58, 0, 0.5, 0],
-                           [0, 1.92, 0.5, 0],
+        # K is the camera instrinsics matrix
+        self.K = np.array([[0.78038, 0, 0.4912, 0],
+                           [0, 1.38734, 0.5062, 0],
                            [0, 0, 1, 0],
                            [0, 0, 0, 1]], dtype=np.float32)
+        if self.camera_info_path:
+            with np.load(self.camera_info_path) as data:
+                self.K = data['K']
 
     def check_depth(self):
         return False

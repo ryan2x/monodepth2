@@ -45,12 +45,14 @@ class MonoDataset(data.Dataset):
                  width,
                  frame_idxs,
                  num_scales,
+                 camera_info_path=None,
                  is_train=False,
                  img_ext='.jpg'):
         super(MonoDataset, self).__init__()
 
         self.data_path = data_path
         self.filenames = filenames
+        self.camera_info_path = camera_info_path
         self.height = height
         self.width = width
         self.num_scales = num_scales

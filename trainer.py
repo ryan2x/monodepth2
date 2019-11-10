@@ -31,6 +31,8 @@ class Trainer:
         self.opt = options
         self.log_path = os.path.join(self.opt.log_dir, self.opt.model_name)
 
+        self.flag_scheduled_step_last = parse_version(torch.__version__) >= parse_version("1.1.0")
+
         # checking height and width are multiples of 32
         assert self.opt.height % 32 == 0, "'height' must be a multiple of 32"
         assert self.opt.width % 32 == 0, "'width' must be a multiple of 32"
@@ -126,13 +128,13 @@ class Trainer:
 
         train_dataset = self.dataset(
             self.opt.data_path, train_filenames, self.opt.height, self.opt.width,
-            self.opt.frame_ids, 4, is_train=True, img_ext=img_ext)
+            self.opt.frame_ids, 4, is_train=True, img_ext=img_ext, camera_info_path=self.opt.camera_info_path)
         self.train_loader = DataLoader(
             train_dataset, self.opt.batch_size, True,
             num_workers=self.opt.num_workers, pin_memory=True, drop_last=True)
         val_dataset = self.dataset(
             self.opt.data_path, val_filenames, self.opt.height, self.opt.width,
-            self.opt.frame_ids, 4, is_train=False, img_ext=img_ext)
+            self.opt.frame_ids, 4, is_train=False, img_ext=img_ext, camera_info_path=self.opt.camera_info_path)
         self.val_loader = DataLoader(
             val_dataset, self.opt.batch_size, True,
             num_workers=self.opt.num_workers, pin_memory=True, drop_last=True)
@@ -196,7 +198,7 @@ class Trainer:
     def run_epoch(self):
         """Run a single epoch of training and validation
         """
-        if parse_version(torch.__version__) < parse_version("1.1.0"):
+        if not self.flag_scheduled_step_last:
             self.model_lr_scheduler.step()
 
         print("Training")
@@ -229,7 +231,7 @@ class Trainer:
 
             self.step += 1
 
-        if parse_version(torch.__version__) >= parse_version("1.1.0"):
+        if self.flag_scheduled_step_last:
             self.model_lr_scheduler.step()
 
     def process_batch(self, inputs):

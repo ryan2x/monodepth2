@@ -40,6 +40,10 @@ class MonodepthOptions:
                                  type=str,
                                  help="path to the splits files",
                                  default="")
+        self.parser.add_argument("--camera_info_path",
+                                 type=str,
+                                 help="path to the camera info npz file",
+                                 default="")
         self.parser.add_argument("--num_layers",
                                  type=int,
                                  help="number of resnet layers",
