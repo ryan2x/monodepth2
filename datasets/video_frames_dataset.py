@@ -30,7 +30,7 @@ class VideoFramesDataset(MonoDataset):
 
         return color
 
-    def get_image_path(self, folder, frame_index, side):
-        f_str = "frame_{:05d}{}".format(frame_index, self.img_ext)
+    def get_image_path(self, folder, frame_index, panel_id):
+        f_str = "frame_{:05d}_{}{}".format(frame_index, panel_id, self.img_ext)
         image_path = os.path.join(self.data_path, folder, f_str)
         return image_path
