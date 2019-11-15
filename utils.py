@@ -114,19 +114,59 @@ def download_model_if_doesnt_exist(model_name):
 
         print("   Model unzipped to {}".format(model_path))
 
+
+__config_logging = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            # 'format': '%(asctime)s [%(levelname)s] %(name)s %(module)s,%(lineno)d: %(message)s',
+            # 'format': '%(asctime)s [%(levelname)s] %(module)s,%(lineno)d: %(message)s'
+            # 'format': '%(asctime)s [%(levelname)s] %(name)s,%(lineno)d: %(message)s'
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': 'DEBUG',
+            'formatter': 'standard',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['default'],
+            'level': 'INFO',
+            'propagate': True
+        },
+        "tests": {
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        "__main__": {
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        "urllib3": {
+            'level': 'WARN',
+            'propagate': True
+        },
+        "torch": {
+            'level': 'WARN',
+            'propagate': True
+        },
+    }
+}
+
 def simple_logging_config(filename=None):
-    if filename:
-        logging.basicConfig(level=logging.DEBUG,
-                            format='%(asctime)s %(levelname)s %(message)s',
-                            filename=filename,
-                            filemode='w')
-    else:
-        logging.basicConfig(level=logging.DEBUG,
-                            format='%(asctime)s %(levelname)s %(message)s')
+    from logging.config import dictConfig
+    dictConfig(__config_logging)
 
 if __name__ == "__main__":
     simple_logging_config()
+    logger = logging.getLogger(__name__)
     logging.debug('A debug message')
     logging.info('Some information')
     logging.warning('A shot across the bows')
+    logger.debug('A debug message')
 
