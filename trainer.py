@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import time
+import logging
 
 import torch
 import torch.nn.functional as F
@@ -25,6 +26,8 @@ import datasets
 import networks
 from IPython import embed
 from pkg_resources import parse_version
+
+logger = logging.getLogger(__name__)
 
 class Trainer:
     def __init__(self, options):
@@ -201,8 +204,11 @@ class Trainer:
         if not self.flag_scheduled_step_last:
             self.model_lr_scheduler.step()
 
-        print("Training")
+        logger.info("Training epoch={}".format(self.epoch))
         self.set_train()
+
+        epoch_start_time = time.time()
+        epoch_monitor_time = epoch_start_time
 
         for batch_idx, inputs in enumerate(self.train_loader):
 
@@ -230,6 +236,10 @@ class Trainer:
                 self.val()
 
             self.step += 1
+
+            if time.time() >= epoch_monitor_time + 300.0:
+                logger.info("running monitor: epoch={} step={} batch_idx={}".format(self.epoch, self.step, batch_idx))
+                epoch_monitor_time = time.time()
 
         if self.flag_scheduled_step_last:
             self.model_lr_scheduler.step()
@@ -542,7 +552,7 @@ class Trainer:
             self.num_total_steps / self.step - 1.0) * time_sofar if self.step > 0 else 0
         print_string = "epoch {:>3} | batch {:>6} | examples/s: {:5.1f}" + \
             " | loss: {:.5f} | time elapsed: {} | time left: {}"
-        print(print_string.format(self.epoch, batch_idx, samples_per_sec, loss,
+        logger.info(print_string.format(self.epoch, batch_idx, samples_per_sec, loss,
                                   sec_to_hm_str(time_sofar), sec_to_hm_str(training_time_left)))
 
     def log(self, mode, inputs, outputs, losses):

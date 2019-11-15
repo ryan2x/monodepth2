@@ -6,6 +6,7 @@
 
 from __future__ import absolute_import, division, print_function
 import os
+import logging
 import hashlib
 import zipfile
 from six.moves import urllib
@@ -112,3 +113,20 @@ def download_model_if_doesnt_exist(model_name):
             f.extractall(model_path)
 
         print("   Model unzipped to {}".format(model_path))
+
+def simple_logging_config(filename=None):
+    if filename:
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(asctime)s %(levelname)s %(message)s',
+                            filename=filename,
+                            filemode='w')
+    else:
+        logging.basicConfig(level=logging.DEBUG,
+                            format='%(asctime)s %(levelname)s %(message)s')
+
+if __name__ == "__main__":
+    simple_logging_config()
+    logging.debug('A debug message')
+    logging.info('Some information')
+    logging.warning('A shot across the bows')
+

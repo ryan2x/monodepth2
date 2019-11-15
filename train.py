@@ -8,11 +8,12 @@ from __future__ import absolute_import, division, print_function
 
 from trainer import Trainer
 from options import MonodepthOptions
-
-options = MonodepthOptions()
-opts = options.parse()
+from utils import simple_logging_config
 
 
 if __name__ == "__main__":
+    simple_logging_config()
+    options = MonodepthOptions()
+    opts = options.parse()
     trainer = Trainer(opts)
     trainer.train()
